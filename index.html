@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CheckRx</title>
+</head>
+<body>
+
+<h2>CheckRx Price Checker</h2>
+
+<label>Medication:</label><br>
+<input type="text"><br><br>
+
+<label>Billed Amount ($):</label><br>
+<input type="number" id="price"><br><br>
+
+<button onclick="checkPrice()">Check Price</button>
+
+<h3 id="result"></h3>
+
+<script>
+function checkPrice() {
+    let billed = document.getElementById("price").value;
+    let expected = 30;
+
+    if (billed == expected) {
+        document.getElementById("result").innerText = "Price Verified";
+    } else {
+        document.getElementById("result").innerText = "Price Mismatch Detected (Expected: $30)";
+    }
+}
+</script>
+
+</body>
+</html>
