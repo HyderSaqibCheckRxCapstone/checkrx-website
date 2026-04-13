@@ -1,34 +1,185 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>CheckRx</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CheckRx</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f8;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 650px;
+      margin: 50px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #1f4e79;
+    }
+
+    p {
+      text-align: center;
+      color: #555;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 12px;
+      background-color: #1f4e79;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #163a5c;
+    }
+
+    .result-box {
+      margin-top: 25px;
+      padding: 15px;
+      border-radius: 8px;
+      background-color: #eef3f7;
+    }
+
+    .alert {
+      color: #b00020;
+      font-weight: bold;
+    }
+
+    .success {
+      color: #1b5e20;
+      font-weight: bold;
+    }
+
+    .note {
+      font-size: 14px;
+      margin-top: 10px;
+      color: #444;
+    }
+
+    .alt-box {
+      margin-top: 12px;
+      padding: 12px;
+      background-color: #f9f9f9;
+      border-left: 4px solid #1f4e79;
+      border-radius: 6px;
+    }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <h1>CheckRx</h1>
+    <p>Pharmacy Billing & Price Check System</p>
 
-<h2>CheckRx Price Checker</h2>
+    <label for="medication">Medication Name</label>
+    <input type="text" id="medication" placeholder="Enter medication name" />
 
-<label>Medication:</label><br>
-<input type="text"><br><br>
+    <label for="billedAmount">Billed Amount ($)</label>
+    <input type="number" id="billedAmount" placeholder="Enter billed amount" />
 
-<label>Billed Amount ($):</label><br>
-<input type="number" id="price"><br><br>
+    <label for="copay">Patient Copay ($)</label>
+    <input type="number" id="copay" placeholder="Enter patient copay" />
 
-<button onclick="checkPrice()">Check Price</button>
+    <label for="ndc">Medication Type</label>
+    <select id="ndc">
+      <option value="amoxicillin">Amoxicillin</option>
+      <option value="atorvastatin">Atorvastatin</option>
+      <option value="metformin">Metformin</option>
+    </select>
 
-<h3 id="result"></h3>
+    <button onclick="checkPrice()">Check Price</button>
 
-<script>
-function checkPrice() {
-    let billed = document.getElementById("price").value;
-    let expected = 30;
+    <div class="result-box" id="resultBox" style="display:none;">
+      <div id="result"></div>
+      <div class="note" id="details"></div>
+      <div id="alternative"></div>
+    </div>
+  </div>
 
-    if (billed == expected) {
-        document.getElementById("result").innerText = "Price Verified";
-    } else {
-        document.getElementById("result").innerText = "Price Mismatch Detected (Expected: $30)";
+  <script>
+    function checkPrice() {
+      const medication = document.getElementById("medication").value;
+      const billed = parseFloat(document.getElementById("billedAmount").value);
+      const copay = parseFloat(document.getElementById("copay").value);
+      const ndc = document.getElementById("ndc").value;
+
+      const resultBox = document.getElementById("resultBox");
+      const result = document.getElementById("result");
+      const details = document.getElementById("details");
+      const alternative = document.getElementById("alternative");
+
+      let expectedPrice = 0;
+      let altDrug = "";
+      let altCopay = 0;
+
+      if (ndc === "amoxicillin") {
+        expectedPrice = 30;
+        altDrug = "Generic Amoxicillin 500mg";
+        altCopay = 10;
+      } else if (ndc === "atorvastatin") {
+        expectedPrice = 25;
+        altDrug = "Generic Atorvastatin";
+        altCopay = 8;
+      } else if (ndc === "metformin") {
+        expectedPrice = 20;
+        altDrug = "Generic Metformin";
+        altCopay = 5;
+      }
+
+      resultBox.style.display = "block";
+
+      if (billed === expectedPrice) {
+        result.className = "success";
+        result.innerText = "Price Verified";
+        details.innerText = "The billed amount matches the expected medication price.";
+
+        if (!isNaN(copay) && copay > altCopay) {
+          alternative.innerHTML =
+            '<div class="alt-box"><strong>Lower Cost Option Available:</strong><br>' +
+            'Suggested alternative: ' + altDrug + '<br>' +
+            'Estimated lower copay: $' + altCopay + '</div>';
+        } else {
+          alternative.innerHTML = "";
+        }
+
+      } else {
+        result.className = "alert";
+        result.innerText = "Price Mismatch Detected";
+        details.innerText = "Expected price: $" + expectedPrice;
+
+        alternative.innerHTML =
+          '<div class="alt-box"><strong>Suggested Alternative:</strong><br>' +
+          altDrug + '<br>Estimated copay: $' + altCopay + '</div>';
+      }
     }
-}
-</script>
-
+  </script>
 </body>
 </html>
