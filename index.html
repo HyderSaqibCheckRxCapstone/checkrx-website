@@ -234,7 +234,34 @@
     }
 
     const mismatch = billedAmount !== priceInfo.expected;
-    const copayHigh = copay > priceInfo.altCopay;
+    let copayMessage = "";
+
+if (isNaN(copay)) {
+  copayMessage = `
+    <h3>Copay Info</h3>
+    <p>Please enter a valid copay amount.</p>
+  `;
+} 
+else if (copay === 0) {
+  copayMessage = `
+    <h3>Copay Info</h3>
+    <p class="success">No copay – fully covered by insurance.</p>
+  `;
+} 
+else if (copay > priceInfo.altCopay) {
+  copayMessage = `
+    <h3>Lower-Cost Option</h3>
+    <p>Current copay: <strong>$${copay}</strong></p>
+    <p>Suggested alternative: <strong>${priceInfo.alternative}</strong></p>
+    <p>Estimated lower copay: <strong>$${priceInfo.altCopay}</strong></p>
+  `;
+} 
+else {
+  copayMessage = `
+    <h3>Copay Status</h3>
+    <p>Your copay is already low compared to alternatives.</p>
+  `;
+}
 
     let statusMessage = "";
 
