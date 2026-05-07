@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CheckRx</title>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -26,10 +27,6 @@
       padding: 25px;
       border-radius: 12px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-
-    h1, h2 {
-      margin-top: 0;
     }
 
     label {
@@ -81,6 +78,34 @@
       font-size: 20px;
     }
 
+    .copay-warning {
+      color: #b00020;
+      font-weight: bold;
+      font-size: 18px;
+      background-color: #ffe6e6;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 12px;
+    }
+
+    .copay-good {
+      color: #176b2c;
+      font-weight: bold;
+      font-size: 18px;
+      background-color: #e6ffe6;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 12px;
+    }
+
+    .copay-neutral {
+      font-size: 16px;
+      background-color: #fff8dd;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 12px;
+    }
+
     .small {
       color: #555;
       font-size: 14px;
@@ -96,32 +121,9 @@
     ul {
       line-height: 1.7;
     }
-    .copay-warning {
-  color: #b00020;
-  font-weight: bold;
-  font-size: 18px;
-  background-color: #ffe6e6;
-  padding: 10px;
-  border-radius: 8px;
-  margin-top: 10px;
-}
-
-.copay-good {
-  color: #176b2c;
-  font-weight: bold;
-  font-size: 18px;
-  background-color: #e6ffe6;
-  padding: 10px;
-  border-radius: 8px;
-  margin-top: 10px;
-}
-
-.copay-neutral {
-  font-size: 16px;
-  margin-top: 10px;
-}
   </style>
 </head>
+
 <body>
 
 <header>
@@ -131,7 +133,10 @@
 
 <div class="container">
   <h2>Prescription Price Checker</h2>
-  <p>Enter medication and billing information to check for price mismatch, NDC data, and lower-cost alternatives.</p>
+  <p>
+    Enter medication and billing information to check for price mismatch,
+    drug information, copay status, and lower-cost options.
+  </p>
 
   <label for="drugName">Medication Name</label>
   <input id="drugName" type="text" placeholder="Example: Amoxicillin, Metformin, Atorvastatin" />
@@ -157,17 +162,17 @@
     <h2>Social Impact</h2>
     <ul>
       <li>Helps identify possible prescription billing errors.</li>
-      <li>Supports patients by showing lower-cost alternatives.</li>
+      <li>Shows lower-cost medication options when available.</li>
       <li>Improves pricing transparency for small pharmacies.</li>
-      <li>Designed with clear labels and readable text for accessibility.</li>
+      <li>Supports patients who may struggle with medication costs.</li>
     </ul>
   </div>
 
   <div class="section">
     <h2>Accessibility Features</h2>
     <ul>
-      <li>Clear form labels for screen readers.</li>
-      <li>Readable text and strong contrast.</li>
+      <li>Clear form labels for readability and screen readers.</li>
+      <li>Readable text with strong contrast.</li>
       <li>Messages use text, not color alone.</li>
       <li>Simple keyboard-friendly form layout.</li>
     </ul>
@@ -202,21 +207,21 @@
     const drugName = document.getElementById("drugName").value.trim();
     const billedAmount = parseFloat(document.getElementById("billedAmount").value);
     const copay = parseFloat(document.getElementById("copay").value);
-    const insurance = document.getElementById("insurance").value;
     const output = document.getElementById("output");
 
     output.style.display = "block";
     output.innerHTML = "Checking medication data...";
 
-    if (!drugName || isNaN(billedAmount) || isNaN(copay)) {
+    if (!drugName || isNaN(billedAmount)) {
       output.innerHTML = `
         <p class="alert">Missing Information</p>
-        <p>Please enter medication name, billed amount, and copay.</p>
+        <p>Please enter a medication name and billed amount.</p>
       `;
       return;
     }
 
     const lowerName = drugName.toLowerCase();
+
     const priceInfo = samplePrices[lowerName] || {
       expected: 30,
       alternative: "Lower-cost generic option",
@@ -257,72 +262,60 @@
       ndcInfo = "openFDA API unavailable or no match";
     }
 
-    const mismatch = billedAmount !== priceInfo.expected;
-    let copayMessage = "";
-
-if (isNaN(copay)) {
-  copayMessage = `
-    <div class="copay-neutral">
-      Please enter a valid copay amount.
-    </div>
-  `;
-} 
-else if (copay === 0) {
-  copayMessage = `
-    <div class="copay-good">
-      No Copay – Fully Covered by Insurance
-    </div>
-  `;
-} 
-else if (copay > priceInfo.altCopay) {
-  copayMessage = `
-    <div class="copay-warning">
-      High Copay Detected: $${copay}
-    </div>
-    <p>Suggested alternative: <strong>${priceInfo.alternative}</strong></p>
-    <p>Estimated lower copay: <strong>$${priceInfo.altCopay}</strong></p>
-  `;
-} 
-else {
-  copayMessage = `
-    <div class="copay-good">
-      Copay is already low compared to alternatives
-    </div>
-  `;
-}
     let statusMessage = "";
 
-    if (mismatch) {
+    if (billedAmount === priceInfo.expected) {
+      statusMessage = `
+        <p class="success">Price Verified</p>
+        <p>The billed amount matches the expected sample price.</p>
+      `;
+    } else {
       statusMessage = `
         <p class="alert">Price Mismatch Detected</p>
         <p>Expected sample price: <strong>$${priceInfo.expected}</strong></p>
         <p>Entered billed amount: <strong>$${billedAmount}</strong></p>
       `;
-    } else {
-      statusMessage = `
-        <p class="success">Price Verified</p>
-        <p>The billed amount matches the expected sample price.</p>
-      `;
     }
 
     let copayMessage = "";
 
-    if (copayHigh) {
+    if (isNaN(copay)) {
       copayMessage = `
-        <h3>Lower-Cost Suggestion</h3>
-        <p>Suggested alternative: <strong>${priceInfo.alternative}</strong></p>
-        <p>Estimated lower copay: <strong>$${priceInfo.altCopay}</strong></p>
-        <p>This may help reduce patient out-of-pocket cost.</p>
+        <div class="copay-neutral">
+          Copay Not Entered: Please enter a valid copay amount to check patient cost.
+        </div>
       `;
-    } else {
+    } 
+    else if (copay === 0) {
       copayMessage = `
-        <h3>Copay Review</h3>
-        <p>The entered copay is already close to the lower-cost estimate.</p>
+        <div class="copay-good">
+          No Copay: This medication appears fully covered by insurance.
+        </div>
+      `;
+    } 
+    else if (copay > priceInfo.altCopay) {
+      copayMessage = `
+        <div class="copay-warning">
+          High Copay Detected: $${copay}
+        </div>
+        <p>Suggested lower-cost alternative: <strong>${priceInfo.alternative}</strong></p>
+        <p>Estimated lower copay: <strong>$${priceInfo.altCopay}</strong></p>
+      `;
+    } 
+    else {
+      copayMessage = `
+        <div class="copay-good">
+          Copay Looks Good: Patient copay is already low compared to alternatives.
+        </div>
       `;
     }
 
     output.innerHTML = `
       ${statusMessage}
+
+      <h3>Copay Review</h3>
+      ${copayMessage}
+      <p class="small">Copay means the amount the patient pays after insurance.</p>
 
       <h3>Medication API Results</h3>
       <p><strong>RxNorm ID:</strong> ${rxNormInfo}</p>
@@ -330,10 +323,8 @@ else {
       <p><strong>Generic Name:</strong> ${genericName}</p>
       <p><strong>Brand Name:</strong> ${brandName}</p>
 
-      ${copayMessage}
-
       <p class="small">
-        Note: This prototype uses real public drug information APIs, but estimated pricing/copay logic is simulated because real insurance copay pricing usually requires private pharmacy or insurance access.
+        Note: This prototype uses real public drug information APIs, but pricing and copay estimates are simulated because real insurance copay data is usually private or restricted.
       </p>
     `;
   }
