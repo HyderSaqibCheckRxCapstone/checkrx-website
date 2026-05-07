@@ -96,6 +96,30 @@
     ul {
       line-height: 1.7;
     }
+    .copay-warning {
+  color: #b00020;
+  font-weight: bold;
+  font-size: 18px;
+  background-color: #ffe6e6;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.copay-good {
+  color: #176b2c;
+  font-weight: bold;
+  font-size: 18px;
+  background-color: #e6ffe6;
+  padding: 10px;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+.copay-neutral {
+  font-size: 16px;
+  margin-top: 10px;
+}
   </style>
 </head>
 <body>
@@ -238,31 +262,34 @@
 
 if (isNaN(copay)) {
   copayMessage = `
-    <h3>Copay Info</h3>
-    <p>Please enter a valid copay amount.</p>
+    <div class="copay-neutral">
+      Please enter a valid copay amount.
+    </div>
   `;
 } 
 else if (copay === 0) {
   copayMessage = `
-    <h3>Copay Info</h3>
-    <p class="success">No copay – fully covered by insurance.</p>
+    <div class="copay-good">
+      No Copay – Fully Covered by Insurance
+    </div>
   `;
 } 
 else if (copay > priceInfo.altCopay) {
   copayMessage = `
-    <h3>Lower-Cost Option</h3>
-    <p>Current copay: <strong>$${copay}</strong></p>
+    <div class="copay-warning">
+      High Copay Detected: $${copay}
+    </div>
     <p>Suggested alternative: <strong>${priceInfo.alternative}</strong></p>
     <p>Estimated lower copay: <strong>$${priceInfo.altCopay}</strong></p>
   `;
 } 
 else {
   copayMessage = `
-    <h3>Copay Status</h3>
-    <p>Your copay is already low compared to alternatives.</p>
+    <div class="copay-good">
+      Copay is already low compared to alternatives
+    </div>
   `;
 }
-
     let statusMessage = "";
 
     if (mismatch) {
